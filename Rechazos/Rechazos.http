@@ -1,0 +1,6 @@
+@Rechazos_HostAddress = http://localhost:5287
+
+GET {{Rechazos_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

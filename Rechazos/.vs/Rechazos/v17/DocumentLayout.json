@@ -1,0 +1,71 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\jose.lugo\\Music\\Rechazos - BackEnd\\Rechazos\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{073C5763-082A-4C9D-A4BF-438A69FBF665}|Rechazos\\Rechazos.csproj|c:\\users\\jose.lugo\\music\\rechazos - backend\\rechazos\\rechazos\\services\\azurestorageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{073C5763-082A-4C9D-A4BF-438A69FBF665}|Rechazos\\Rechazos.csproj|solutionrelative:rechazos\\services\\azurestorageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{073C5763-082A-4C9D-A4BF-438A69FBF665}|Rechazos\\Rechazos.csproj|c:\\users\\jose.lugo\\music\\rechazos - backend\\rechazos\\rechazos\\controllers\\rejectionscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{073C5763-082A-4C9D-A4BF-438A69FBF665}|Rechazos\\Rechazos.csproj|solutionrelative:rechazos\\controllers\\rejectionscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{073C5763-082A-4C9D-A4BF-438A69FBF665}|Rechazos\\Rechazos.csproj|c:\\users\\jose.lugo\\music\\rechazos - backend\\rechazos\\rechazos\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{073C5763-082A-4C9D-A4BF-438A69FBF665}|Rechazos\\Rechazos.csproj|solutionrelative:rechazos\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\jose.lugo\\Music\\Rechazos - BackEnd\\Rechazos\\Rechazos\\appsettings.json",
+              "RelativeDocumentMoniker": "Rechazos\\appsettings.json",
+              "ToolTip": "C:\\Users\\jose.lugo\\Music\\Rechazos - BackEnd\\Rechazos\\Rechazos\\appsettings.json",
+              "RelativeToolTip": "Rechazos\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-09-23T20:00:46.636Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "RejectionsController.cs",
+              "DocumentMoniker": "C:\\Users\\jose.lugo\\Music\\Rechazos - BackEnd\\Rechazos\\Rechazos\\Controllers\\RejectionsController.cs",
+              "RelativeDocumentMoniker": "Rechazos\\Controllers\\RejectionsController.cs",
+              "ToolTip": "C:\\Users\\jose.lugo\\Music\\Rechazos - BackEnd\\Rechazos\\Rechazos\\Controllers\\RejectionsController.cs",
+              "RelativeToolTip": "Rechazos\\Controllers\\RejectionsController.cs",
+              "ViewState": "AgIAAIEAAAAAAAAAAAAswKYAAABeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T15:48:50.414Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AzureStorageService.cs",
+              "DocumentMoniker": "C:\\Users\\jose.lugo\\Music\\Rechazos - BackEnd\\Rechazos\\Rechazos\\Services\\AzureStorageService.cs",
+              "RelativeDocumentMoniker": "Rechazos\\Services\\AzureStorageService.cs",
+              "ToolTip": "C:\\Users\\jose.lugo\\Music\\Rechazos - BackEnd\\Rechazos\\Rechazos\\Services\\AzureStorageService.cs",
+              "RelativeToolTip": "Rechazos\\Services\\AzureStorageService.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAEwBEAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-22T15:53:48.895Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,219 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Rechazos",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/Rejections/GetLines": {
+      "get": {
+        "tags": [
+          "Rejections"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Rejections/GetClients": {
+      "get": {
+        "tags": [
+          "Rejections"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Rejections/GetDefects": {
+      "get": {
+        "tags": [
+          "Rejections"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Rejections/GetContainmentAction": {
+      "get": {
+        "tags": [
+          "Rejections"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Rejections/GetConditionByDefect": {
+      "get": {
+        "tags": [
+          "Rejections"
+        ],
+        "parameters": [
+          {
+            "name": "defectId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Rejections/GetNextFolio": {
+      "get": {
+        "tags": [
+          "Rejections"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Rejections/GetRejections": {
+      "get": {
+        "tags": [
+          "Rejections"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Rejections/Create": {
+      "post": {
+        "tags": [
+          "Rejections"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "IdDefect": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "IdCondition": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "IdLine": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "IdClient": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "IdContainmentaction": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Insepector": {
+                    "type": "string"
+                  },
+                  "PartNumber": {
+                    "type": "string"
+                  },
+                  "NumberOfPieces": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "Photos": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  },
+                  "InformedSignature": {
+                    "type": "string"
+                  },
+                  "OperatorPayroll": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Folio": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              },
+              "encoding": {
+                "IdDefect": {
+                  "style": "form"
+                },
+                "IdCondition": {
+                  "style": "form"
+                },
+                "IdLine": {
+                  "style": "form"
+                },
+                "IdClient": {
+                  "style": "form"
+                },
+                "IdContainmentaction": {
+                  "style": "form"
+                },
+                "Insepector": {
+                  "style": "form"
+                },
+                "PartNumber": {
+                  "style": "form"
+                },
+                "NumberOfPieces": {
+                  "style": "form"
+                },
+                "Description": {
+                  "style": "form"
+                },
+                "Photos": {
+                  "style": "form"
+                },
+                "InformedSignature": {
+                  "style": "form"
+                },
+                "OperatorPayroll": {
+                  "style": "form"
+                },
+                "Folio": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": { }
+}
