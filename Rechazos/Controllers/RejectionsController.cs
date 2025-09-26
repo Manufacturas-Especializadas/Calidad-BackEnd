@@ -124,6 +124,7 @@ namespace Rechazos.Controllers
                                     r.Description,
                                     r.Image,
                                     r.RegistrationDate,
+                                    r.Folio,
                                     Clients = r.IdClientNavigation.Name,
                                     Defects = r.IdDefectNavigation.Name,
                                     Lines = r.IdLineNavigation.Name,
