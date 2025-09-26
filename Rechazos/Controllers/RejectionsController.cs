@@ -142,6 +142,24 @@ namespace Rechazos.Controllers
             return Ok(list);
         }
 
+        [HttpDelete]
+        [Route("Delete/{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var rejection = await _context.Rejections.FindAsync(id);
+
+            if (rejection == null) return NotFound("Rejection not found");
+
+            _context.Rejections.Remove(rejection);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                message = "Rejection deleted successfully"
+            });
+        }
+
         [HttpPost]
         [Route("Create")]
         public async Task<IActionResult> Create([FromForm] RejectionDto rejection)
