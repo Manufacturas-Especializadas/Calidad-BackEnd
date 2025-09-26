@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Rechazos.Dtos;
 using Rechazos.Models;
 using Rechazos.Services;
+using System.Drawing;
+using System.Net.Security;
 
 namespace Rechazos.Controllers
 {
@@ -140,6 +143,141 @@ namespace Rechazos.Controllers
             }
 
             return Ok(list);
+        }
+
+        [HttpPost]
+        [Route("DownloadExcel")]
+        public async Task<IActionResult> ExportToExcel()
+        {
+            var rejection = await _context.Rejections
+                .Select(r => new
+                {
+                    Inspector = r.Insepector,
+                    PartNumber = r.PartNumber,
+                    Amount = r.NumberOfPieces,
+                    OperatorPayroll = r.OperatorPayroll,
+                    Description = r.Description,
+                    Date = r.RegistrationDate,
+                    Defect = r.IdDefectNavigation != null ? r.IdDefectNavigation.Name : null,
+                    Condition = r.IdConditionNavigation != null ? r.IdConditionNavigation.Name : null,
+                    Line = r.IdLineNavigation != null ? r.IdLineNavigation.Name : null,
+                    Client = r.IdContainmentactionNavigation != null ? r.IdContainmentactionNavigation.Name : null,
+                    ImageUrls = r.Image,
+                    SignatureUrl = r.InformedSignature
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
+            using var workBook = new XLWorkbook();
+            var workSheet = workBook.Worksheets.Add("Rechazos");
+            using var httpClient = new HttpClient();
+
+            workSheet.Cell(1, 1).Value = "Inspector";
+            workSheet.Cell(1, 2).Value = "Número de parte";
+            workSheet.Cell(1, 3).Value = "Cantidad de piezas";
+            workSheet.Cell(1, 4).Value = "Nómina";
+            workSheet.Cell(1, 5).Value = "Descripción";
+            workSheet.Cell(1, 6).Value = "Fecha";
+            workSheet.Cell(1, 7).Value = "Defecto";
+            workSheet.Cell(1, 8).Value = "Condición";
+            workSheet.Cell(1, 9).Value = "Línea";
+            workSheet.Cell(1, 10).Value = "Cliente";
+            workSheet.Cell(1, 11).Value = "Imagen 1";
+            workSheet.Cell(1, 12).Value = "Imagen 2";
+            workSheet.Cell(1, 13).Value = "Imagen 3";
+            workSheet.Cell(1, 14).Value = "Imagen 4";
+            workSheet.Cell(1, 15).Value = "Firma";
+
+            for (int i = 0; i < rejection.Count; i++)
+            {
+                var row = i + 2;
+
+                workSheet.Cell(row, 1).Value = rejection[i].Inspector ?? string.Empty;
+                workSheet.Cell(row, 2).Value = rejection[i].PartNumber ?? string.Empty;
+                workSheet.Cell(row, 3).Value = rejection[i].Amount ?? 0;
+                workSheet.Cell(row, 4).Value = rejection[i].OperatorPayroll?.ToString() ?? string.Empty;
+                workSheet.Cell(row, 5).Value = rejection[i].Description ?? string.Empty;
+                workSheet.Cell(row, 6).Value = rejection[i].Date?.ToString("dd/MM/yyyy") ?? string.Empty;
+                workSheet.Cell(row, 7).Value = rejection[i].Defect ?? string.Empty;
+                workSheet.Cell(row, 8).Value = rejection[i].Condition ?? string.Empty;
+                workSheet.Cell(row, 9).Value = rejection[i].Line ?? string.Empty;
+                workSheet.Cell(row, 10).Value = rejection[i].Client ?? string.Empty;
+
+                string[] imageUrls = (rejection[i].ImageUrls ?? "")
+                    .Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(u => u.Trim())
+                    .Where(u => !string.IsNullOrEmpty(u))
+                    .ToArray();
+
+                for (int imgIndex = 0; imgIndex < 4; imgIndex++)
+                {
+                    if (imgIndex < imageUrls.Length && !string.IsNullOrWhiteSpace(imageUrls[imgIndex]))
+                    {
+                        try
+                        {
+                            byte[] imageBytes = await httpClient.GetByteArrayAsync(imageUrls[imgIndex].Trim());
+                            using var imageStream = new MemoryStream(imageBytes);
+                            using var image = Image.FromStream(imageStream);
+
+                            double targetWidth = 150;
+                            double targetHeight = 100;
+
+                            double scaleX = targetWidth / image.Width;
+                            double scaleY = targetHeight / image.Height;
+                            double scale = Math.Min(scaleX, scaleY);
+
+                            var picture = workSheet.AddPicture(imageStream)
+                                .MoveTo(workSheet.Cell(row, 11 + imgIndex))
+                                .Scale(scale);
+
+                            workSheet.Row(row).Height = 100;
+                            workSheet.Column(11 + imgIndex).Width = 20;
+                        }
+                        catch (Exception ex)
+                        {
+                            workSheet.Cell(row, 11 + imgIndex).Value = "Error al cargar imagen";
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(rejection[i].SignatureUrl))
+                {
+                    try
+                    {
+                        byte[] signatureBytes = await httpClient.GetByteArrayAsync(rejection[i].SignatureUrl);
+                        using var signatureStream = new MemoryStream(signatureBytes);
+                        using var signatureImage = Image.FromStream(signatureStream);
+
+                        double sigTargetWidth = 150;
+                        double sigTargetHeight = 60;
+
+                        double sigScaleX = sigTargetWidth / signatureImage.Width;
+                        double sigScaleY = sigTargetHeight / signatureImage.Height;
+                        double sigScale = Math.Min(sigScaleX, sigScaleY);
+
+                        var signature = workSheet.AddPicture(signatureStream)
+                            .MoveTo(workSheet.Cell(row, 15))
+                            .Scale(sigScale);
+
+                        workSheet.Row(row).Height = Math.Max(workSheet.Row(row).Height, 60);
+                        workSheet.Column(15).Width = 25;
+                    }
+                    catch (Exception ex)
+                    {
+                        workSheet.Cell(row, 15).Value = "Error al cargar firma";
+                    }
+                }
+            }
+
+            workSheet.Columns(1, 10).AdjustToContents();
+
+            var stream = new MemoryStream();
+            workBook.SaveAs(stream);
+            stream.Position = 0;
+
+            var fileName = $"Rechazos_{DateTime.Now:ddMMyyyy_HHmmss}.xlsx";
+
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
 
         [HttpDelete]
