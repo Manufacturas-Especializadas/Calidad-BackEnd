@@ -38,6 +38,14 @@
       {
          "Name": "[dbo].[RjDefects]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Roles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Users]",
+         "ObjectType": 0
       }
    ],
    "UiHint": null,
