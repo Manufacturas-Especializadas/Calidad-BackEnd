@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Rechazos.Dtos;
+using Rechazos.Models;
 using Rechazos.Services;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace Rechazos.Controllers
 {
@@ -11,10 +14,47 @@ namespace Rechazos.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AuthService _authService;
+        private readonly AppDbContext _context;
 
-        public AuthController(AuthService authService)
+        public AuthController(AuthService authService, AppDbContext context)
         {
             _authService = authService;
+            _context = context;
+        }
+
+        [HttpGet]
+        [Route("GetRoles")]
+        public async Task<IActionResult> GetRolesAsync()
+        {
+            var list = await _context.Roles.AsNoTracking().ToListAsync();
+
+            if(list == null)
+            {
+                BadRequest("List empty");
+            }
+
+            return Ok(list);
+        }
+
+        [HttpPost]
+        [Route("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if(userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Unauthorized(new { message = "Usuario no autenticado" });
+            }
+
+            var success = await _authService.LogoutAsync(userId);
+
+            if(!success)
+            {
+                return NotFound(new { message = "Usuario no encontrado" });
+            }
+
+            return Ok(new { message = "Sesión cerrada correctamente"});
         }
 
         [HttpPost]
@@ -29,7 +69,7 @@ namespace Rechazos.Controllers
             }
 
             return Ok(response);
-        }
+        }        
 
         [HttpPost]
         [Route("Register")]
