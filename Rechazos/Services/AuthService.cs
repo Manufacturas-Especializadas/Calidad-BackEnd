@@ -23,6 +23,23 @@ namespace Rechazos.Services
             _passwordHasher = new PasswordHasher<Users>();
         }
 
+        public async Task<bool> LogoutAsync(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+
+            if(user == null)
+            {
+                return false;
+            }
+
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = null;
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
         public async Task<TokenResponseDto?> LoginAsync(LoginRequestDto request)
         {
             var user = await _context.Users
