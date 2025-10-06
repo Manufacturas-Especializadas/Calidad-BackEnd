@@ -52,4 +52,4 @@ jobs:
           app-name: 'app-mesa-calidad-api-prod'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D795C78476174B1B9BA1DF75AD8F2784 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_511EF07DE9094D52868C0DBDE265D10A }}
