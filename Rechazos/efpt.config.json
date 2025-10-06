@@ -24,6 +24,18 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[MachineCodes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[MesaProcess]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[RamosLines]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Rejections]",
          "ObjectType": 0
       },
@@ -41,6 +53,26 @@
       },
       {
          "Name": "[dbo].[Roles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ScDefects]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ScMaterial]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Scrap]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ScTypeScrap]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Shifts]",
          "ObjectType": 0
       },
       {
