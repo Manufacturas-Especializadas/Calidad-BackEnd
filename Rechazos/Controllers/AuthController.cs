@@ -110,6 +110,5 @@ namespace Rechazos.Controllers
 
             return Ok(response);
         }
-
     }
 }
