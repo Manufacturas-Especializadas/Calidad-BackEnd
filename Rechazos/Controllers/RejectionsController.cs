@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using Rechazos.Models;
 using Rechazos.Services;
 using System.Drawing;
 using System.Net.Security;
+using System.Security.Claims;
 
 namespace Rechazos.Controllers
 {
@@ -298,6 +300,7 @@ namespace Rechazos.Controllers
             });
         }
 
+        [Authorize]
         [HttpPost]
         [Route("Create")]
         public async Task<IActionResult> Create([FromForm] RejectionDto rejection)
@@ -310,6 +313,18 @@ namespace Rechazos.Controllers
             if (rejection.Photos != null && rejection.Photos.Count > 5)
             {
                 return BadRequest("Se permite un máximo de 4 fotos");
+            }
+
+            var userClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userClaim == null || !int.TryParse(userClaim.Value, out int userId))
+            {
+                return Unauthorized(new { message = "Usuario no autenticado" });
+            }
+
+            var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+            if (!userExists)
+            {
+                return Unauthorized(new { message = "Usuario no válido" });
             }
 
             var urls = new List<string>();
@@ -352,7 +367,8 @@ namespace Rechazos.Controllers
                     IdContainmentaction = rejection.IdContainmentaction,
                     InformedSignature = informedSignatureUrl,
                     RegistrationDate = DateTime.Now,
-                    Folio = rejection.Folio
+                    Folio = rejection.Folio,
+                    IdUser = userId
                 };
 
                 _context.Rejections.Add(newRejection);
