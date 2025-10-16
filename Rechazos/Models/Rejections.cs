@@ -35,6 +35,8 @@ public partial class Rejections
 
     public int? Folio { get; set; }
 
+    public int? IdUser { get; set; }
+
     public virtual Clients? IdClientNavigation { get; set; }
 
     public virtual RjCondition? IdConditionNavigation { get; set; }
@@ -44,4 +46,6 @@ public partial class Rejections
     public virtual RjDefects? IdDefectNavigation { get; set; }
 
     public virtual Lines? IdLineNavigation { get; set; }
+
+    public virtual Users? IdUserNavigation { get; set; }
 }

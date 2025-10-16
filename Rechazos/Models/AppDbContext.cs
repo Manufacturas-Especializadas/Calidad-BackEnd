@@ -165,6 +165,10 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.IdLine)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Rejection__IdLin__625A9A57");
+
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.Rejections)
+                .HasForeignKey(d => d.IdUser)
+                .HasConstraintName("FK__Rejection__IdUse__19AACF41");
         });
 
         modelBuilder.Entity<RjCondition>(entity =>
@@ -360,5 +364,6 @@ public partial class AppDbContext : DbContext
 
         OnModelCreatingPartial(modelBuilder);
     }
+
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
