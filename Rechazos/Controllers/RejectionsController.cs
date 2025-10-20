@@ -147,6 +147,46 @@ namespace Rechazos.Controllers
             return Ok(list);
         }
 
+        [HttpGet]
+        [Route("GetRejectionsById/{id}")]
+        public async Task<IActionResult> GetRejectionsById(int id)
+        {
+            var rejection = await _context.Rejections
+                .Where(r => r.Id == id)
+                .Select(r => new
+                {
+                    r.Id,
+                    r.Insepector,
+                    r.PartNumber,
+                    r.NumberOfPieces,
+                    r.OperatorPayroll,
+                    r.Description,
+                    r.Image,
+                    r.RegistrationDate,
+                    r.Folio,
+                    r.InformedSignature,
+                    r.IdClient,
+                    r.IdDefect,
+                    r.IdLine,
+                    r.IdCondition,
+                    r.IdContainmentaction,
+                    ClientName = r.IdClientNavigation.Name,
+                    DefectName = r.IdDefectNavigation.Name,
+                    LineName = r.IdLineNavigation.Name,
+                    ConditionName = r.IdConditionNavigation.Name,
+                    ActionName = r.IdContainmentactionNavigation.Name,
+                })
+                .FirstOrDefaultAsync();
+
+            if (rejection == null)
+            {
+                return NotFound("Id no encontrado");
+            }
+
+            return Ok(rejection);
+        }
+
+
         [HttpPost]
         [Route("DownloadExcel")]
         public async Task<IActionResult> ExportToExcel()
@@ -415,5 +455,97 @@ namespace Rechazos.Controllers
                 rejectionId = newRejectionNoPhotos.Id
             });
         }
+
+        [Authorize]
+        [HttpPut]
+        [Route("Edit/{id}")]
+        public async Task<IActionResult> Edit(int id, [FromForm] RejectionDto rejection)
+        {
+            if (rejection == null)
+            {
+                return BadRequest("Rejection no tiene datos");
+            }
+
+            if (rejection.Photos != null && rejection.Photos.Count > 5)
+            {
+                return BadRequest("Se permite un máximo de 5 fotos");
+            }
+
+            var userClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userClaim == null || !int.TryParse(userClaim.Value, out int userId))
+            {
+                return Unauthorized(new { message = "Usuario no autenticado" });
+            }
+
+            var existingRejection = await _context.Rejections.FindAsync(id);
+            if (existingRejection == null)
+            {
+                return NotFound("Rechazo no encontrado");
+            }
+
+            var orignalUrls = existingRejection.Image?.Split(";", StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+            var remainingUrls = rejection.ExistingImageUrls?.Split(";", StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+
+            var urlsToDelete = orignalUrls.Except(remainingUrls);
+
+            foreach(var url in urlsToDelete)
+            {
+                await _azureStorageService.DeleteFileAsync(_container, url);
+            }
+
+            var urls = new List<string>();
+            string newSignatureUrl = existingRejection.InformedSignature!;
+
+            if (rejection.Photos != null && rejection.Photos.Any())
+            {
+                foreach (var photo in rejection.Photos)
+                {
+                    if (photo.Length > 0)
+                    {
+                        var url = await _azureStorageService.StoragePhotos(_container, photo);
+                        var fileName = photo.FileName.ToLower();
+
+                        if (fileName.Contains("signature"))
+                        {
+                            if (!string.IsNullOrEmpty(existingRejection.InformedSignature))
+                            {
+                                await _azureStorageService.DeleteFileAsync(_container, existingRejection.InformedSignature);
+                            }
+                            newSignatureUrl = url;
+                        }
+                        else
+                        {
+                            urls.Add(url);
+                        }
+                    }
+                }
+            }
+
+            var finalUrls = remainingUrls.Concat(urls).ToList();
+            existingRejection.Image = finalUrls.Any() ? string.Join(";", finalUrls) : null;
+            existingRejection.InformedSignature = newSignatureUrl;
+
+            existingRejection.Insepector = rejection.Insepector;
+            existingRejection.PartNumber = rejection.PartNumber;
+            existingRejection.NumberOfPieces = rejection.NumberOfPieces;
+            existingRejection.IdDefect = rejection.IdDefect;
+            existingRejection.IdCondition = rejection.IdCondition;
+            existingRejection.Description = rejection.Description;
+            existingRejection.IdLine = rejection.IdLine;
+            existingRejection.IdClient = rejection.IdClient;
+            existingRejection.OperatorPayroll = rejection.OperatorPayroll;
+            existingRejection.IdContainmentaction = rejection.IdContainmentaction;
+            existingRejection.Folio = rejection.Folio;
+
+            _context.Rejections.Update(existingRejection);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                message = "Registro actualizado exitosamente",
+                rejectionId = existingRejection.Id
+            });
+        }      
     }
 }
