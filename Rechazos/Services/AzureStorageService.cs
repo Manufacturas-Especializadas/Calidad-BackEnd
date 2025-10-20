@@ -1,15 +1,18 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using System.Diagnostics;
 
 namespace Rechazos.Services
 {
     public class AzureStorageService
     {
         private readonly string _connectionString;
+        private readonly BlobServiceClient _blobServiceClient;
 
         public AzureStorageService(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("AzureStorageConnection")!;
+            _blobServiceClient = new BlobServiceClient(_connectionString);
         }
 
         public async Task<string> StoragePhotos(string container, IFormFile photo)
@@ -29,7 +32,7 @@ namespace Rechazos.Services
                     throw new ApplicationException("Solo se permiten archivos de imagen (.jpg, .jpeg, .png, .gif, .bmp, .webp)");
                 }
 
-                var client = new BlobContainerClient(_connectionString, container);
+                var client = _blobServiceClient.GetBlobContainerClient(container);
                 await client.CreateIfNotExistsAsync();
 
                 var fileName = photo.FileName;
@@ -56,6 +59,38 @@ namespace Rechazos.Services
             catch (Exception ex)
             {
                 throw new ApplicationException("Error al guardar el archivo", ex);
+            }
+        }
+
+        public async Task<bool> DeleteFileAsync(string container, string fileUrl)
+        {
+            if (string.IsNullOrEmpty(fileUrl))
+            {
+                return false;
+            }
+
+            try
+            {
+                var containerClient = _blobServiceClient.GetBlobContainerClient(container);
+
+                var blobName = new Uri(fileUrl).Segments.LastOrDefault();
+
+                if (string.IsNullOrEmpty(blobName))
+                {
+                    return false;
+                }
+
+                var blobClient = containerClient.GetBlobClient(blobName);
+
+                var response = await blobClient.DeleteIfExistsAsync();
+
+                return response.Value;
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine($"Error al eliminar el blob: {ex.Message}");
+
+                return false;
             }
         }
     }
