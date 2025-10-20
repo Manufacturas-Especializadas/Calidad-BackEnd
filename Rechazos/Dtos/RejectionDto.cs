@@ -27,5 +27,7 @@
         public int? OperatorPayroll { get; set; }
 
         public int Folio {  get; set; }
+
+        public string? ExistingImageUrls { get; set; }
     }
 }
