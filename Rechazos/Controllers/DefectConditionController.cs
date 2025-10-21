@@ -24,6 +24,12 @@ namespace Calidad.Controllers
         {
             var list = await _context.RjCondition
                             .AsNoTracking()
+                            .Select(c => new
+                            {
+                                c.Id,
+                                Defecto = c.IdDefectsNavigation.Name,
+                                c.Name
+                            })
                             .ToListAsync();
 
             if(list == null)
@@ -35,15 +41,62 @@ namespace Calidad.Controllers
         }
 
         [HttpGet]
+        [Route("GetDefects")]
+        public async Task<IActionResult> GetDefects()
+        {
+            var defects = await _context.RjDefects
+                                        .AsNoTracking()
+                                        .ToListAsync();
+
+            if(defects == null)
+            {
+                return BadRequest("lista vacia");
+            }
+
+            return Ok(defects);
+        }
+
+        [HttpGet]
         [Route("GetConditionByDefect")]
         public async Task<IActionResult> GetConditionByDefect(int idDefect)
         {
             var IdDefect = await _context.RjCondition
                                     .Where(c => c.IdDefects == idDefect)
+                                    .Select(c => new
+                                    {
+                                        c.Id,
+                                        IdDefects = c.IdDefects,
+                                        Defecto = c.IdDefectsNavigation.Name,
+                                        c.Name
+                                    })
                                     .AsNoTracking()
                                     .ToListAsync();
 
             return Ok(IdDefect);
+        }
+
+        [HttpGet]
+        [Route("GetConditionById/{id}")]
+        public async Task<IActionResult> GetConditionById(int id)
+        {
+            var condition = await _context.RjCondition
+                .Where(c => c.Id == id)
+                .Select(c => new
+                {
+                    c.Id,
+                    IdDefects = c.IdDefects,
+                    Defecto = c.IdDefectsNavigation.Name,
+                    c.Name
+                })
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            if (condition == null)
+            {
+                return NotFound("Condición no encontrada");
+            }
+
+            return Ok(condition);
         }
 
         [HttpPost]
@@ -83,6 +136,7 @@ namespace Calidad.Controllers
                 return BadRequest("Id no encontrado");
             }
 
+            IdDefectCondition.IdDefects = dto.IdDefects;
             IdDefectCondition.Name = dto.Name;
 
             await _context.SaveChangesAsync();
