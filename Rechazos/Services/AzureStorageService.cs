@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using System.Diagnostics;
 
@@ -91,6 +92,26 @@ namespace Rechazos.Services
                 Debug.WriteLine($"Error al eliminar el blob: {ex.Message}");
 
                 return false;
+            }
+        }
+
+        public async Task<Stream> DownloadBlobAsStreamAsync(string containerName, string blobName)
+        {
+            try
+            {
+                var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+                var blobClient = containerClient.GetBlobClient(blobName);
+
+                var response = await blobClient.DownloadStreamingAsync();
+                return response.Value.Content;
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                throw new FileNotFoundException($"El blob '{blobName}' no existe en el contenedor '{containerName}'.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"Error al descargar el blob '{blobName}': {ex.Message}", ex);
             }
         }
     }
