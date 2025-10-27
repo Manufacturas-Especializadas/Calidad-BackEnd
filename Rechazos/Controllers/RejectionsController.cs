@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Rechazos.Dtos;
 using Rechazos.Models;
 using Rechazos.Services;
-using System.Drawing;
+using SixLabors.ImageSharp;
 using System.Net.Security;
 using System.Security.Claims;
 
@@ -265,11 +265,11 @@ namespace Rechazos.Controllers
                             await imageStream.CopyToAsync(memoryStream);
                             memoryStream.Position = 0;
 
-                            using var image = Image.FromStream(memoryStream, true, true);
+                            var imageInfo = Image.Identify(memoryStream);
 
                             double targetWidth = 150;
                             double targetHeight = 100;
-                            double scale = Math.Min(targetWidth / image.Width, targetHeight / image.Height);
+                            double scale = Math.Min(targetWidth / imageInfo.Width, targetHeight / imageInfo.Height);
 
                             memoryStream.Position = 0;
 
@@ -289,6 +289,7 @@ namespace Rechazos.Controllers
 
                 if (!string.IsNullOrWhiteSpace(rejection[i].SignatureUrl))
                 {
+                    // ...
                     try
                     {
                         var signatureUrl = rejection[i].SignatureUrl;
@@ -300,13 +301,13 @@ namespace Rechazos.Controllers
                         await signatureStream.CopyToAsync(memorySignatureStream);
                         memorySignatureStream.Position = 0;
 
-                        using var signatureImage = Image.FromStream(memorySignatureStream, true, true);
+                        var sigInfo = Image.Identify(memorySignatureStream);
 
                         double sigTargetWidth = 150;
                         double sigTargetHeight = 60;
-                        double sigScale = Math.Min(sigTargetWidth / signatureImage.Width, sigTargetHeight / signatureImage.Height);
+                        double sigScale = Math.Min(sigTargetWidth / sigInfo.Width, sigTargetHeight / sigInfo.Height);
 
-                        memorySignatureStream.Position = 0;
+                        memorySignatureStream.Position = 0;                                                           
 
                         var signature = workSheet.AddPicture(memorySignatureStream)
                             .MoveTo(workSheet.Cell(row, 15))
