@@ -212,7 +212,6 @@ namespace Rechazos.Controllers
 
             using var workBook = new XLWorkbook();
             var workSheet = workBook.Worksheets.Add("Rechazos");
-            using var httpClient = new HttpClient();
 
             workSheet.Cell(1, 1).Value = "Inspector";
             workSheet.Cell(1, 2).Value = "Número de parte";
@@ -257,27 +256,33 @@ namespace Rechazos.Controllers
                     {
                         try
                         {
-                            byte[] imageBytes = await httpClient.GetByteArrayAsync(imageUrls[imgIndex].Trim());
-                            using var imageStream = new MemoryStream(imageBytes);
-                            using var image = Image.FromStream(imageStream);
+                            var imageUrl = imageUrls[imgIndex].Trim();
+                            var blobName = new Uri(imageUrl).Segments.Last();
+
+                            using var imageStream = await _azureStorageService.DownloadBlobAsStreamAsync(_container, blobName);
+
+                            using var memoryStream = new MemoryStream();
+                            await imageStream.CopyToAsync(memoryStream);
+                            memoryStream.Position = 0;
+
+                            using var image = Image.FromStream(memoryStream, true, true);
 
                             double targetWidth = 150;
                             double targetHeight = 100;
+                            double scale = Math.Min(targetWidth / image.Width, targetHeight / image.Height);
 
-                            double scaleX = targetWidth / image.Width;
-                            double scaleY = targetHeight / image.Height;
-                            double scale = Math.Min(scaleX, scaleY);
+                            memoryStream.Position = 0;
 
-                            var picture = workSheet.AddPicture(imageStream)
+                            var picture = workSheet.AddPicture(memoryStream)
                                 .MoveTo(workSheet.Cell(row, 11 + imgIndex))
                                 .Scale(scale);
 
-                            workSheet.Row(row).Height = 100;
+                            workSheet.Row(row).Height = Math.Max(workSheet.Row(row).Height, 100);
                             workSheet.Column(11 + imgIndex).Width = 20;
                         }
                         catch (Exception ex)
                         {
-                            workSheet.Cell(row, 11 + imgIndex).Value = "Error al cargar imagen";
+                            workSheet.Cell(row, 11 + imgIndex).Value = $"Error: {ex.Message}";
                         }
                     }
                 }
@@ -286,18 +291,24 @@ namespace Rechazos.Controllers
                 {
                     try
                     {
-                        byte[] signatureBytes = await httpClient.GetByteArrayAsync(rejection[i].SignatureUrl);
-                        using var signatureStream = new MemoryStream(signatureBytes);
-                        using var signatureImage = Image.FromStream(signatureStream);
+                        var signatureUrl = rejection[i].SignatureUrl;
+                        var blobName = new Uri(signatureUrl).Segments.Last();
+
+                        using var signatureStream = await _azureStorageService.DownloadBlobAsStreamAsync(_container, blobName);
+
+                        using var memorySignatureStream = new MemoryStream();
+                        await signatureStream.CopyToAsync(memorySignatureStream);
+                        memorySignatureStream.Position = 0;
+
+                        using var signatureImage = Image.FromStream(memorySignatureStream, true, true);
 
                         double sigTargetWidth = 150;
                         double sigTargetHeight = 60;
+                        double sigScale = Math.Min(sigTargetWidth / signatureImage.Width, sigTargetHeight / signatureImage.Height);
 
-                        double sigScaleX = sigTargetWidth / signatureImage.Width;
-                        double sigScaleY = sigTargetHeight / signatureImage.Height;
-                        double sigScale = Math.Min(sigScaleX, sigScaleY);
+                        memorySignatureStream.Position = 0;
 
-                        var signature = workSheet.AddPicture(signatureStream)
+                        var signature = workSheet.AddPicture(memorySignatureStream)
                             .MoveTo(workSheet.Cell(row, 15))
                             .Scale(sigScale);
 
@@ -306,7 +317,7 @@ namespace Rechazos.Controllers
                     }
                     catch (Exception ex)
                     {
-                        workSheet.Cell(row, 15).Value = "Error al cargar firma";
+                        workSheet.Cell(row, 15).Value = $"Error firma: {ex.Message}";
                     }
                 }
             }
